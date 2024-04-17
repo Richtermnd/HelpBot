@@ -77,3 +77,12 @@ class UserInfo:
             fields.append(f"Адрес доставки: {self.deliver_address}")
             fields.append(f"Вещи:\n\t* "+'\n\t* '.join(self.items))
         return "\n".join(fields)
+
+
+_already_confirmed = set()
+
+def already_confirm(user_id: int) -> bool:
+    return user_id in _already_confirmed
+
+def add_confirm(user_id: int):
+    _already_confirmed.add(user_id)

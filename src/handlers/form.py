@@ -101,6 +101,9 @@ async def goto_confirm(context: context.FSMContext, message: types.Message):
 
 @router.message(filters.StateFilter(None), aiogram.F.text.in_(("Заполнить форму",)))
 async def cmd_form(message: types.Message, state: context.FSMContext):
+    if service.already_confirm(message.from_user.id):
+        await message.answer("Вы уже заполнили анкету.")
+        return
     await message.answer("Сейчас вам предстоит заполнить анкету.")
     await state.update_data(user_id=message.from_user.id)
     await goto(FormState.name_state, state, message)
@@ -239,6 +242,7 @@ async def form_confirm(message: types.Message, state: context.FSMContext):
             reply_markup=types.ReplyKeyboardRemove()
             )
         user = service.UserInfo.from_dict(await state.get_data())
+        service.add_confirm(user.user_id)
         await user.send_to_chat(bot.chat_id)
         await state.clear()
         return

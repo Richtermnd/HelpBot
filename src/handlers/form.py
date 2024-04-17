@@ -21,7 +21,6 @@ class FormState(state.StatesGroup):
     need_shelter_state = state.State()
     family_size_state = state.State()
     has_animals_state = state.State()
-    prefer_district_state = state.State()
 
     need_items_state = state.State()
     items_state = state.State()
@@ -38,11 +37,11 @@ state_map = {
         "reply_markup": keyboard.make_keyboard([["Отмена"]])
     },
     FormState.phone_state: {
-        "text": "Ваш контактный номер телефона:",
+        "text": "Ваш контактный номер телефона в формате +7XXXXXXXXXX:",
         "reply_markup": keyboard.make_keyboard([["Отмена"]])
     },
     FormState.registration_state: {
-        "text": "Пришлите фото вашей прописки:",
+        "text": "Пришлите фото вашей прописки, чтобы можно было убедиться в том, что вы проживаете в зоне потопления:",
         "reply_markup": keyboard.make_keyboard([["Отмена"]])
     },
 
@@ -59,20 +58,16 @@ state_map = {
         "text": "Есть ли у вас животные?",
         "reply_markup": keyboard.make_keyboard([["Да", "Нет"], ["Отмена"]])
     },
-    FormState.prefer_district_state: {
-        "text": "Предпочитаемый район?",
-        "reply_markup": keyboard.make_keyboard([["Отмена"]])
-    },
 
     # Items
     FormState.need_items_state: {
-        "text": "Нужны ли вам вещи?",
+        "text": "Нужны ли вам какие-либо вещи первой необходимости (одежда, еда, лекарства)?",
         "reply_markup": keyboard.make_keyboard([["Да", "Нет"], ["Отмена"]])
     },
 
     # Select deliver or pickup
     FormState.is_deliver_state: {
-        "text": "Доставка или самовывоз?",
+        "text": "У нас мало ресурсов и людей, поэтому настоятельно просим выбирать доставку только при необходимости (преклонный возраст, инвалидность и т.д.).",
         "reply_markup": keyboard.make_keyboard([["Доставка", "Самовывоз"], ["Отмена"]])
     },
 
@@ -103,9 +98,10 @@ async def goto_confirm(context: context.FSMContext, message: types.Message):
     await goto(FormState.confirm_state, context, message)
     await context.set_state(FormState.confirm_state)
 
-@router.message(filters.StateFilter(None), filters.Command(commands=["form"]))
+@router.message(filters.StateFilter(None), aiogram.F.text.in_(("Заполнить форму",)))
 async def cmd_form(message: types.Message, state: context.FSMContext):
-    await message.answer("Сейчас вам предстоит заполнить анкету.\n <ссылка на документ о согласии на обработку перосональных данных>")
+    await message.answer("Сейчас вам предстоит заполнить анкету.")
+    await state.update_data(user_id=message.from_user.id)
     await goto(FormState.name_state, state, message)
 
 
@@ -205,8 +201,10 @@ async def form_is_deliver(message: types.Message, state: context.FSMContext):
         await state.update_data(is_deliver=False)
         await message.answer("""
 Пункты выдачи:
-Оренбург - ул. новая 4, время работы с 10:00 до 20:00
-Оренбургский район - ул. степана разина 209, время работы с 9:00 до 18:00""")
+Если прописка - Оренбург:
+\tОренбург - ул. новая 4, время работы с 10:00 до 20:00
+Если прописка - Оренбургский Район:
+\tОренбургский район - ул. степана разина 209, время работы с 9:00 до 18:00""")
         await goto_confirm(state, message)
         return
     

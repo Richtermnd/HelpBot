@@ -9,7 +9,7 @@ async def main():
         form.router,
         common.router,
     )
-
+    print("start polling")
     await bot.dp.start_polling(bot.bot)
 
 

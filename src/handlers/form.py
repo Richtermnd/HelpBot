@@ -105,6 +105,7 @@ async def cmd_form(message: types.Message, state: context.FSMContext):
         await message.answer("Вы уже заполнили анкету.")
         return
     await message.answer("Сейчас вам предстоит заполнить анкету.")
+    await state.update_data(tg_name=message.from_user.full_name)
     await state.update_data(user_id=message.from_user.id)
     await goto(FormState.name_state, state, message)
 

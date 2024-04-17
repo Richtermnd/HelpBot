@@ -16,6 +16,7 @@ class UserInfo:
     def from_dict(data: dict[str, Any]) -> "UserInfo":
         return UserInfo(
             user_id=data.get("user_id", 0),
+            tg_name=data.get("tg_name", ""),
             name=data.get("name", ""),
             phone=data.get("phone", ""),
             registration=data.get("registration", ""),
@@ -31,6 +32,7 @@ class UserInfo:
             self,
             user_id: int, 
             name: str,
+            tg_name: str,
             phone: str,
             registration: str,
             need_shelter: bool,
@@ -43,6 +45,7 @@ class UserInfo:
             ):
         self.user_id = user_id
         self.name = name
+        self.tg_name = tg_name
         self.phone = phone
         self.registration = registration
         self.need_shelter = need_shelter
@@ -63,7 +66,7 @@ class UserInfo:
         aiogram.utils.formatting.Text()
     def __str__(self) -> str:
         fields = []
-        fields.append(f"<a href=\"tg://user?id={self.user_id}\">Ссылка на пользователя</a>")
+        fields.append(f"Телеграм: <a href=\"tg://user?id={self.user_id}\">{self.tg_name}</a>")
         fields.append(f"Имя: {self.name}")
         fields.append(f"Телефон: {self.phone}")
         fields.append(f"Нужно жильё: {'Да' if self.need_shelter else 'Нет'}")

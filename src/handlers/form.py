@@ -8,6 +8,7 @@ from keyboards import keyboard
 from service import service
 from custom_filters.custom_filters import ChatTypeFilter
 from bot import bot
+from handlers.enums import FormTexts
 
 
 router = aiogram.Router()
@@ -33,55 +34,55 @@ class FormState(state.StatesGroup):
 state_map = {
     # Required
     FormState.name_state: {
-        "text": "Ваше ФИО:",
+        "text": FormTexts.name_state,
         "reply_markup": keyboard.make_keyboard([["Отмена"]])
     },
     FormState.phone_state: {
-        "text": "Ваш контактный номер телефона в формате +7XXXXXXXXXX:",
+        "text": FormTexts.phone_state,
         "reply_markup": keyboard.make_keyboard([["Отмена"]])
     },
     FormState.registration_state: {
-        "text": "Пришлите фото вашей прописки, чтобы можно было убедиться в том, что вы проживаете в зоне потопления:",
+        "text": FormTexts.registration_state,
         "reply_markup": keyboard.make_keyboard([["Отмена"]])
     },
 
     # Shelter stuff
     FormState.need_shelter_state: {
-        "text": "Нужно ли вам жильё?",
+        "text": FormTexts.need_shelter_state,
         "reply_markup": keyboard.make_keyboard([["Да", "Нет"], ["Отмена"]])
     },
     FormState.family_size_state: {
-        "text": "Сколько человек в семье?",
+        "text": FormTexts.family_size_state,
         "reply_markup": keyboard.make_keyboard([["Отмена"]])
     },
     FormState.has_animals_state: {
-        "text": "Есть ли у вас животные?",
+        "text": FormTexts.has_animals_state,
         "reply_markup": keyboard.make_keyboard([["Да", "Нет"], ["Отмена"]])
     },
 
     # Items
     FormState.need_items_state: {
-        "text": "Нужны ли вам какие-либо вещи первой необходимости (одежда, еда, лекарства)?",
+        "text": FormTexts.need_items_state,
         "reply_markup": keyboard.make_keyboard([["Да", "Нет"], ["Отмена"]])
     },
 
     # Select deliver or pickup
     FormState.is_deliver_state: {
-        "text": "У нас мало ресурсов и людей, поэтому настоятельно просим выбирать доставку только при необходимости (преклонный возраст, инвалидность и т.д.).",
+        "text": FormTexts.is_deliver_state,
         "reply_markup": keyboard.make_keyboard([["Доставка", "Самовывоз"], ["Отмена"]])
     },
 
     # Is deliver 
     FormState.items_state: {
-        "text": "Укажите необходимые вещи через запятую:",
+        "text": FormTexts.items_state,
         "reply_markup": keyboard.make_keyboard([["Отмена"]])
     },
     FormState.deliver_address_state: {
-        "text": "Укажите адрес доставки:",
+        "text": FormTexts.deliver_address_state,
         "reply_markup": keyboard.make_keyboard([["Отмена"]])
     },
     FormState.confirm_state: {
-        "text": "Нажимая подтвердить вы даёте согласие на обработку персональных данных.",
+        "text": FormTexts.confirm_state,
         "reply_markup": keyboard.make_keyboard([["Подтвердить", "Заполнить заново"], ["Я отказываюсь"]])
     }
 }
@@ -89,7 +90,7 @@ state_map = {
 
 async def goto(state: FormState, context: context.FSMContext, message: types.Message):
     msg = state_map[state]    
-    await message.answer(**msg)
+    await message.answer(**msg, parse_mode=aiogram.enums.ParseMode.HTML)
     await context.set_state(state)
 
 async def goto_confirm(context: context.FSMContext, message: types.Message):
@@ -199,12 +200,7 @@ async def form_is_deliver(message: types.Message, state: context.FSMContext):
         return
     if message.text == "Самовывоз":
         await state.update_data(is_deliver=False)
-        await message.answer("""
-Пункты выдачи:
-Если прописка - Оренбург:
-\tОренбург - ул. новая 4, время работы с 10:00 до 20:00
-Если прописка - Оренбургский Район:
-\tОренбургский район - ул. степана разина 209, время работы с 9:00 до 18:00""")
+        await message.answer(FormTexts.addresses, parse_mode=aiogram.enums.ParseMode.HTML)
         await goto_confirm(state, message)
         return
     

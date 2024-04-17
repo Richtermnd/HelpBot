@@ -1,7 +1,12 @@
 from typing import Any
 
 import aiogram
-import aiohttp
+import aiogram.utils
+import aiogram.utils.formatting
+from aiogram.utils import formatting as fmt
+# from telegram
+# from aiogram.types.P
+
 
 from bot import bot
 
@@ -49,11 +54,16 @@ class UserInfo:
         self.deliver_address = deliver_address
     
     async def send_to_chat(self, chat_id):
-        await bot.bot.send_photo(chat_id=chat_id, photo=self.registration, caption=str(self))
-    
+        text = str(self)
+        await bot.bot.send_photo(chat_id=chat_id, photo=self.registration, caption=text, parse_mode=aiogram.enums.ParseMode.HTML)
+
+    def _as_markdown(self):
+        # link for user
+        aiogram.utils.formatting.TextLink("Ссылка на пользователя", f"tg://user?id={self.user_id}")
+        aiogram.utils.formatting.Text()
     def __str__(self) -> str:
         fields = []
-        fields.append(f"tg://user?id={self.user_id}")
+        fields.append(f"<a href=\"tg://user?id={self.user_id}\">Ссылка на пользователя</a>")
         fields.append(f"Имя: {self.name}")
         fields.append(f"Телефон: {self.phone}")
         fields.append(f"Нужно жильё: {'Да' if self.need_shelter else 'Нет'}")

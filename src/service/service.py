@@ -67,16 +67,11 @@ class UserInfo:
             parse_mode=aiogram.enums.ParseMode.HTML,
             **kwargs
             )
-
-    def _as_markdown(self):
-        # link for user
-        aiogram.utils.formatting.TextLink("Ссылка на пользователя", f"tg://user?id={self.user_id}")
-        aiogram.utils.formatting.Text()
-
+        
     def __str__(self) -> str:
         fields = []
         fields.append(f"Статус: Ожидает")
-        fields.append(f"Телеграм: <a href=\"tg://user?id={self.user_id}\">{self.tg_name}</a>")
+        fields.append(f"Телеграм: tg://user?id={self.user_id}")
         fields.append(f"Имя: {self.name}")
         fields.append(f"Телефон: {self.phone}")
         fields.append(f"Нужно жильё: {'Да' if self.need_shelter else 'Нет'}")

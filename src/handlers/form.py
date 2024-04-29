@@ -244,7 +244,7 @@ async def form_confirm(message: types.Message, state: context.FSMContext):
             )
         user = service.UserInfo.from_dict(await state.get_data())
         service.add_confirm(user.user_id)
-        await user.send_to_chat(bot.chat_id)
+        await user.send_to_chat(bot.chat_id, send_keboard=True)
         await state.clear()
         return
     await state.set_data({})
